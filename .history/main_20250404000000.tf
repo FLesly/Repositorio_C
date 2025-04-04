@@ -33,16 +33,14 @@ data "azurerm_user_assigned_identity" "app_service_identity" {
 }
 
 data "azurerm_container_registry" "acr" {
-  name                = "acr${var.project}${var.environment}${random_string.suffix.result}"
-  resource_group_name = azurerm_resource_group.rg.name
+  name                = "acr${var.project}${var.environment}*" # Usar comodín para buscar el ACR con sufijo aleatorio
+  resource_group_name = var.infra_resource_group_name
 }
-
 
 data "azurerm_storage_account" "storage_account" {
-  name                = "st${var.project}${var.environment}${random_string.suffix.result}"
-  resource_group_name = azurerm_resource_group.rg.name
+  name                = "st${var.project}${var.environment}*" # Usar comodín para buscar la cuenta de almacenamiento con sufijo aleatorio
+  resource_group_name = var.storage_resource_group_name
 }
-
 
 data "azurerm_subnet" "subnet_web" {
   name                 = "subnet-web-${var.project}-${var.environment}"

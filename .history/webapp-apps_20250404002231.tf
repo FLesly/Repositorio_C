@@ -8,7 +8,8 @@ resource "azurerm_linux_web_app" "webapp_public" {
   site_config {
     always_on = true
     application_stack {
-      docker_image_name = "${data.azurerm_container_registry.acr.login_server}/${var.project}/public-ui:latest"
+      docker_image_name = "${data.azurerm_container_registry.acr.login_server}/${var.project}/public-ui"
+      image_tag         = "latest"
     }
     vnet_route_all_enabled = true
     cors {
@@ -34,6 +35,12 @@ resource "azurerm_linux_web_app" "webapp_public" {
   tags = var.tags
 }
 
+# Integración de VNET para UI Pública
+resource "azurerm_app_service_virtual_network_swift_connection" "webapp_public_vnet" {
+  app_service_id = azurerm_linux_web_app.webapp_public.id
+  subnet_id      = data.azurerm_subnet.subnet_web.id
+}
+
 # App Service para UI Administrativa
 resource "azurerm_linux_web_app" "webapp_admin" {
   name                = "app-admin-${var.project}-${var.environment}"
@@ -44,7 +51,8 @@ resource "azurerm_linux_web_app" "webapp_admin" {
   site_config {
     always_on = true
     application_stack {
-      docker_image_name = "${data.azurerm_container_registry.acr.login_server}/${var.project}/admin-ui:latest"
+      docker_image_name = "${data.azurerm_container_registry.acr.login_server}/${var.project}/admin-ui"
+      image_tag         = "latest"
     }
     vnet_route_all_enabled = true
     ip_restriction {
@@ -73,6 +81,12 @@ resource "azurerm_linux_web_app" "webapp_admin" {
   tags = var.tags
 }
 
+# Integración de VNET para UI Administrativa
+resource "azurerm_app_service_virtual_network_swift_connection" "webapp_admin_vnet" {
+  app_service_id = azurerm_linux_web_app.webapp_admin.id
+  subnet_id      = data.azurerm_subnet.subnet_web.id
+}
+
 # App Service para API
 resource "azurerm_linux_web_app" "api" {
   name                = "api-${var.project}-${var.environment}"
@@ -83,7 +97,8 @@ resource "azurerm_linux_web_app" "api" {
   site_config {
     always_on = true
     application_stack {
-      docker_image_name = "${data.azurerm_container_registry.acr.login_server}/${var.project}/api:latest"
+      docker_image_name = "${data.azurerm_container_registry.acr.login_server}/${var.project}/api"
+      image_tag         = "latest"
     }
     vnet_route_all_enabled = true
     cors {
@@ -114,4 +129,10 @@ resource "azurerm_linux_web_app" "api" {
   }
 
   tags = var.tags
+}
+
+# Integración de VNET para API
+resource "azurerm_app_service_virtual_network_swift_connection" "api_vnet" {
+  app_service_id = azurerm_linux_web_app.api.id
+  subnet_id      = data.azurerm_subnet.subnet_api.id
 }
